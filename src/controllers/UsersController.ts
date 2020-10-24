@@ -1,98 +1,92 @@
-import { Request, Response } from "express";
-import { getRepository } from "typeorm";
+import { Request, Response } from 'express';
+import { getRepository } from 'typeorm';
 
-import User from "../models/User";
+import User from '../models/User';
 
-import CreateUserService from "../services/CreateUserSevice";
+import CreateUserService from '../services/CreateUserSevice';
 
-import * as Yup from "yup";
-import { hash } from "bcryptjs";
+import * as Yup from 'yup';
+import { hash } from 'bcryptjs';
 
 export default {
-  async index(request: Request, response: Response) {
-    const usersRepository = getRepository(User);
+    async index(request: Request, response: Response) {
+        const usersRepository = getRepository(User);
 
-    const users = await usersRepository.find();
+        const users = await usersRepository.find();
 
-    users.map((user) => delete user.password);
+        users.map(user => delete user.password);
 
-    return response.status(200).json(users);
-  },
+        return response.status(200).json(users);
+    },
 
-  async create(request: Request, response: Response) {
-    try {
-      const { name, email, password } = request.body;
+    async create(request: Request, response: Response) {
+        try {
+            const { name, email, password } = request.body;
 
-      const createUser = new CreateUserService();
+            const createUser = new CreateUserService();
 
-      const user = await createUser.execute({
-        name,
-        email,
-        password,
-      });
+            const user = await createUser.execute({
+                name,
+                email,
+                password,
+            });
 
-      delete user.password;
+            delete user.password;
 
-      return response.status(201).json(user);
-    } catch (err) {
-      return response.status(400).json({ error: err.message });
-    }
-  },
+            return response.status(201).json(user);
+        } catch (err) {
+            return response.status(400).json({ error: err.message });
+        }
+    },
 
-  async edit(request: Request, response: Response): Promise<any> {
-    const { id } = request.params;
+    async edit(request: Request, response: Response): Promise<any> {
+        const { id } = request.params;
 
-    const { name, email, password } = request.body;
+        const { name, email, password } = request.body;
 
-    const schema = Yup.object().shape({
-      name: Yup.string().required(),
-      email: Yup.string().required().max(300),
-      password: Yup.string().required(),
-    });
+        const schema = Yup.object().shape({
+            name: Yup.string().required(),
+            email: Yup.string().required().max(300),
+            password: Yup.string().required(),
+        });
 
-    await schema.validate(
-      { name, email, password },
-      {
-        abortEarly: false,
-      }
-    );
+        await schema.validate(
+            { name, email, password },
+            {
+                abortEarly: false,
+            },
+        );
 
-    const usersRepository = getRepository(User);
+        const usersRepository = getRepository(User);
 
-    const userToUpdate = await usersRepository.findOne(id);
+        const userToUpdate = await usersRepository.findOne(id);
 
-    if (!userToUpdate) {
-      throw new Error();
-    }
+        if (!userToUpdate) {
+            throw new Error();
+        }
 
-    const data = userToUpdate as User;
+        const data = userToUpdate as User;
 
-    const hashedPassword = await hash(password, 8);
+        const hashedPassword = await hash(password, 8);
 
-    await usersRepository.update(data, {
-      name,
-      email,
-      password: hashedPassword,
-    });
+        return response.status(200).json({ id, name, email, hashedPassword });
+    },
 
-    // await usersRepository.save({ name, email, password: hashedPassword });
+    async delete(request: Request, response: Response) {
+        const { id } = request.params;
 
-    return response.status(200).json({ id, name, email, hashedPassword });
-  },
+        const usersRepository = getRepository(User);
 
-  async delete(request: Request, response: Response) {
-    const { id } = request.params;
+        const userToBeDelected = await usersRepository.findOne(id);
 
-    const usersRepository = getRepository(User);
+        if (!userToBeDelected) {
+            return response
+                .status(404)
+                .json({ message: 'user could not be found.' });
+        }
 
-    const userToBeDelected = await usersRepository.findOne(id);
+        usersRepository.delete(id);
 
-    if (!userToBeDelected) {
-      return response.status(404).json({ message: "user could not be found." });
-    }
-
-    usersRepository.delete(id);
-
-    return response.status(200).json({ message: "User deleted." });
-  },
+        return response.status(200).json({ message: 'User deleted.' });
+    },
 };
