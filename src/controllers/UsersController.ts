@@ -14,6 +14,8 @@ export default {
 
     const users = await usersRepository.find();
 
+    users.map((user) => delete user.password);
+
     return response.status(200).json(users);
   },
 
