@@ -3,10 +3,11 @@ import { getRepository } from 'typeorm';
 
 import User from '../models/User';
 
-import CreateUserService from '../services/CreateUserSevice';
+import CreateUserService from '../services/CreateUserService';
+import UpdateUserService from '../services/UpdateUserService';
+import DeleteUserService from '../services/DeleteUserService';
 
 import * as Yup from 'yup';
-import { hash } from 'bcryptjs';
 
 export default {
     async index(request: Request, response: Response) {
@@ -57,36 +58,35 @@ export default {
             },
         );
 
-        const usersRepository = getRepository(User);
+        const updateUser = new UpdateUserService();
 
-        const userToUpdate = await usersRepository.findOne(id);
+        const updatedUser = await updateUser.execute({
+            id,
+            name,
+            email,
+            password,
+        });
 
-        if (!userToUpdate) {
-            throw new Error();
-        }
-
-        const data = userToUpdate as User;
-
-        const hashedPassword = await hash(password, 8);
-
-        return response.status(200).json({ id, name, email, hashedPassword });
+        return response.status(200).json(updatedUser);
     },
 
     async delete(request: Request, response: Response) {
-        const { id } = request.params;
+        try {
+            const { id } = request.params;
 
-        const usersRepository = getRepository(User);
+            const deleteUser = new DeleteUserService();
 
-        const userToBeDelected = await usersRepository.findOne(id);
+            let userDeleted = await deleteUser.execute({ id });
 
-        if (!userToBeDelected) {
-            return response
-                .status(404)
-                .json({ message: 'user could not be found.' });
+            if (!userDeleted) {
+                userDeleted = { message: 'user not found' };
+                return response.status(404).json({ userDeleted });
+            } else {
+                delete userDeleted.password;
+                return response.status(200).json({ userDeleted });
+            }
+        } catch (err) {
+            throw new Error('internal server error');
         }
-
-        usersRepository.delete(id);
-
-        return response.status(200).json({ message: 'User deleted.' });
     },
 };
