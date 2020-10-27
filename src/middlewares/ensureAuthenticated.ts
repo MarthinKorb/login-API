@@ -3,9 +3,9 @@ import { verify } from 'jsonwebtoken';
 import authConfig from '../config/auth';
 
 interface TokenPayload {
+    sub: string;
     iat: number;
     exp: number;
-    sub: string;
 }
 
 export default function ensureAuthenticated(
@@ -15,7 +15,7 @@ export default function ensureAuthenticated(
 ): any {
     const authHeader = request.headers.authorization;
     if (!authHeader) {
-        throw new Error('JWT token is missing.');
+        return response.status(401).json({ message: 'JWT token is missing.' });
     }
 
     const [, token] = authHeader.split(' ');
