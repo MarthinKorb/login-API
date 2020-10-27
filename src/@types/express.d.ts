@@ -5,3 +5,4 @@ declare namespace Express {
         };
     }
 }
+// Sobrescrevendo a tipagem do Express
