@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import swaggerUi from 'swagger-ui-express';
 
-import SessionsController from './controllers/SessionsController';
 import UsersController from './controllers/UsersController';
+import SessionsController from './controllers/SessionsController';
+import ForgotPasswordController from './controllers/ForgotPasswordController';
 
 import ensureAuthenticated from './middlewares/ensureAuthenticated';
 
@@ -20,5 +21,7 @@ routes.put('/users/:id', ensureAuthenticated, UsersController.edit);
 routes.delete('/users/:id', UsersController.delete);
 
 routes.post('/sessions', SessionsController.create);
+
+routes.post('/forgot-password', ForgotPasswordController.sendMail);
 
 export default routes;
