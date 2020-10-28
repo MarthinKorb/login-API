@@ -22,7 +22,12 @@ export default {
 
     async create(request: Request, response: Response) {
         try {
-            const { name, email, password } = request.body;
+            const {
+                name,
+                email,
+                password,
+                passwordConfirmation,
+            } = request.body;
 
             const createUser = new CreateUserService();
 
@@ -30,6 +35,7 @@ export default {
                 name,
                 email,
                 password,
+                passwordConfirmation,
             });
 
             delete user.password;
@@ -60,14 +66,14 @@ export default {
 
         const updateUser = new UpdateUserService();
 
-        const updatedUser = await updateUser.execute({
+        await updateUser.execute({
             id,
             name,
             email,
             password,
         });
 
-        return response.status(200).json(updatedUser);
+        return response.status(200).json({ message: 'User updated!' });
     },
 
     async delete(request: Request, response: Response) {
@@ -80,10 +86,10 @@ export default {
 
             if (!userDeleted) {
                 userDeleted = { message: 'user not found' };
-                return response.status(404).json({ userDeleted });
+                return response.status(404).json({ message: 'User not found' });
             } else {
                 delete userDeleted.password;
-                return response.status(200).json({ userDeleted });
+                return response.status(200).json({ message: 'User deleted' });
             }
         } catch (err) {
             throw new Error('internal server error');
