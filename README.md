@@ -1,6 +1,6 @@
 ## **Login API**
 
-Aplicação desenvolvida em NodeJS, para criação, deleção e edição de usuário.
+Aplicação desenvolvida em NodeJS, para criação,, edição, deleção, login e recuperação de senha de um usuário com email. 
 
 ---
 
