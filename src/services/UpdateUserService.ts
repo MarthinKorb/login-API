@@ -30,11 +30,11 @@ export default class UpdateUserService {
             throw new Error('User not Found');
         }
 
-        const userWIthUpdatedEmail = await usersRepository.findOne({
+        const userWithUpdatedEmail = await usersRepository.findOne({
             where: { email },
         });
 
-        if (userWIthUpdatedEmail && userWIthUpdatedEmail.id !== id) {
+        if (userWithUpdatedEmail && userWithUpdatedEmail.id !== id) {
             throw new Error('E-mail already in use.');
         }
 

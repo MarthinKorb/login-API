@@ -20,7 +20,7 @@ routes.post('/users', UsersController.create);
 routes.put('/users/:id', ensureAuthenticated, UsersController.edit);
 routes.delete('/users/:id', UsersController.delete);
 
-routes.post('/sessions', SessionsController.create);
+routes.post('/login', SessionsController.create);
 
 routes.post('/forgot-password', ForgotPasswordController.sendMail);
 
